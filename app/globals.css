@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RTL defaults */
+html {
+  direction: rtl;
+}
+
+:root {
+  --meu-red: #8A1F1F;
+  --meu-dark: #2B2B2B;
+  --meu-gray: #777777;
+  --meu-white: #FFFFFF;
+}
+
+body {
+  background: var(--meu-white);
+  color: var(--meu-dark);
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <rect width="240" height="240" fill="#ffffff"/>
+  <circle cx="120" cy="120" r="92" fill="#8A1F1F" opacity="0.12"/>
+  <circle cx="120" cy="120" r="70" fill="#8A1F1F" opacity="0.20"/>
+  <text x="120" y="132" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#2B2B2B">
+    MEU LOGO
+  </text>
+  <text x="120" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#777777">
+    Placeholder
+  </text>
+</svg>

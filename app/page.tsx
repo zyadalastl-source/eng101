@@ -1,90 +1,238 @@
+"use client";
+
 import Container from "@/components/Container";
 import SectionTitle from "@/components/SectionTitle";
 import { Card, CardContent } from "@/components/Card";
 import Link from "next/link";
+import Image from "next/image";
+import { Tajawal } from "next/font/google";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Bot,
+  BookOpenText,
+  BusFront,
+  Sigma,
+  LayoutGrid,
+  HelpCircle,
+} from "lucide-react";
 
+
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["400", "500", "700", "800"],
+});
+
+// مرتبة بالأهمية
 const FEATURES = [
-  { title: "شات بوت الجزري", href: "/chatbot" },
-  { title: "مكتبة المواد", href: "/courses" },
-  { title: "MEU BUS النقل", href: "/bus" },
-  { title: "مخطّط المواد الذكي", href: "/planner" },
-  { title: "أدوات حساب المعدل", href: "/gpa" },
-  { title: "كويزات المذاكرة", href: "/quizzes" }
+  {
+    title: "شات بوت الجزري",
+    href: "/chatbot",
+    desc: "اسأل أي سؤال بالمادة وخذ شرح سريع + مصادر منسّقة.",
+    icon: Bot,
+  },
+  {
+    title: "مكتبة المواد",
+    href: "/courses",
+    desc: "سلايدات، ملفات، تلخيصات وروابط مفيدة لكل مادة.",
+    icon: BookOpenText,
+  },
+  {
+    title: "مخطّط المواد الذكي",
+    href: "/planner",
+    desc: "يبني لك خطة فصلية حسب المتطلبات السابقة وعدد الساعات.",
+    icon: LayoutGrid,
+  },
+  {
+    title: "أدوات حساب المعدل",
+    href: "/gpa",
+    desc: "احسب فصلي/تراكمي بسرعة مع حفظ النتائج.",
+    icon: Sigma,
+  },
+  {
+    title: "MEU BUS النقل",
+    href: "/bus",
+    desc: "مواعيد وخطوط الباصات بطريقة واضحة وسهلة.",
+    icon: BusFront,
+  },
+  {
+    title: "كويزات المذاكرة",
+    href: "/quizzes",
+    desc: "اختبر نفسك بكويزات سريعة قبل الامتحان.",
+    icon: HelpCircle,
+  },
 ] as const;
 
+
 export default function HomePage() {
+  const highlights = useMemo(
+    () => [
+      "مواد مرتبة + ملفات جاهزة للتحميل",
+      "خطة ذكية حسب المتطلبات السابقة",
+      "حساب معدل سريع ودقيق",
+      "اسأل الجزري… جواب مباشر وبأسلوب مفهوم",
+    ],
+    []
+  );
+
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setActive((p) => (p + 1) % highlights.length);
+    }, 2600);
+    return () => clearInterval(t);
+  }, [highlights.length]);
+
   return (
-    <div>
-      <section className="bg-gradient-to-b from-meu-red to-meu-red/90 text-meu-white">
+    <div className={tajawal.className}>
+      {/* HERO */}
+      <section className="relative overflow-hidden rounded-b-3xl">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/hero-bg.png"
+            alt="Hero background"
+            fill
+            priority
+            className="object-cover"
+          />
+          {/* Dark / Red overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-[#7f1d1d]/55 to-black/35" />
+        </div>
+
         <Container>
-          <div className="py-12 md:py-16">
-            <div className="max-w-2xl">
-              <div className="text-xs opacity-90">ENG101.com</div>
-              <h1 className="mt-2 text-3xl font-bold leading-tight md:text-4xl">
-                — 
-              </h1>
-              <p className="mt-3 text-sm text-meu-white/85 md:text-base">
-                — 
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/courses"
-                  className="rounded-xl bg-meu-white px-4 py-2 text-sm font-semibold text-meu-red"
-                >
-                  تصفّح المواد
-                </Link>
-                <Link
-                  href="/chatbot"
-                  className="rounded-xl border border-meu-white/30 px-4 py-2 text-sm font-semibold text-meu-white hover:bg-meu-white/10"
-                >
-                  اسأل الجزري
-                </Link>
+          <div className="relative py-12 md:py-16">
+            {/* HERO CONTENT */}
+            <div className="grid gap-6 md:grid-cols-12 md:items-center">
+              <div className="md:col-span-12 text-right">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                  ENG-101.online
+                </h1>
+
+                <p className="mt-3 text-sm md:text-base text-white/85 leading-relaxed">
+                  بوابتك الذكية لكل ما تحتاجه في كلية الهندسة بجامعة الشرق الأوسط:
+                  مواد، جداول، حساب معدل، وخطة ذكية… وكلها بمكان واحد.
+                </p>
+
+                {/* Sliding highlight */}
+                <div className="mt-5 h-9 overflow-hidden">
+                  <div
+                    key={active}
+                    className="text-white/90 text-sm md:text-base font-semibold animate-[slideIn_420ms_ease-out]"
+                  >
+                    • {highlights[active]}
+                  </div>
+                </div>
+
+                <div className="mt-7 flex flex-wrap gap-5 justify-end">
+                  <Link
+                    href="/chatbot"
+                    className="rounded-2xl bg-white px-5 py-3 text-sm md:text-base font-extrabold text-[#7f1d1d]
+                    shadow-sm hover:bg-white/90 transition
+                    animate-[bounceSoft_2.2s_ease-in-out_infinite]"
+                  >
+                    اسأل الجزري
+                  </Link>
+
+                  <Link
+                    href="/courses"
+                    className="rounded-2xl border border-white/35 px-5 py-3 text-sm md:text-base font-bold text-white
+                    hover:bg-white/10 transition"
+                  >
+                    مكتبة المواد
+                  </Link>
+                </div>
               </div>
             </div>
+
+            {/* custom keyframes */}
+            <style jsx global>{`
+              @keyframes slideIn {
+                from {
+                  opacity: 0;
+                  transform: translateY(10px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+              @keyframes bounceSoft {
+                0%,
+                100% {
+                  transform: translateY(0);
+                }
+                50% {
+                  transform: translateY(-3px);
+                }
+              }
+            `}</style>
           </div>
         </Container>
       </section>
 
+      {/* SERVICES */}
       <section className="py-10">
         <Container>
-          <SectionTitle title="خدمات المنصة" subtitle="—" />
+          <SectionTitle title="خدمات المنصة" subtitle="كل شيء تحتاجه… مرتب وبسيط" />
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => (
-              <Link key={f.title} href={f.href} className="group">
-                <Card className="transition group-hover:shadow-md">
-                  <CardContent>
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-sm font-semibold text-meu-dark">{f.title}</div>
-                        <div className="mt-1 text-xs text-meu-gray">—</div>
+  {FEATURES.map((f) => {
+    const Icon = f.icon;
+
+    return (
+      <Link key={f.title} href={f.href} className="group">
+        <Card className="relative overflow-hidden transition duration-200 group-hover:shadow-md group-hover:-translate-y-0.5">
+          <CardContent>
+            {/* Icon badge (زي اللي بالصورة) */}
+                      <div className="absolute right-4 top-4">
+                        <div className="h-12 w-12 rounded-full bg-[#7f1d1d]/10 flex items-center justify-center">
+                          <div className="h-10 w-10 rounded-full bg-white/80 shadow-sm ring-1 ring-black/5 flex items-center justify-center">
+                            <Icon className="h-5 w-5 text-[#7f1d1d]" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-meu-gray">←</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+
+                      <div className="pt-14 text-right">
+                        <div className="text-sm font-extrabold text-meu-dark">
+                          {f.title}
+                        </div>
+                        <div className="mt-1 text-xs text-meu-gray leading-relaxed">
+                          {f.desc}
+                        </div>
+
+                        <div className="mt-3 text-xs text-meu-gray inline-flex items-center gap-1">
+                          <span className="transition-transform duration-200 group-hover:-translate-x-1">➜</span>
+                          <span>افتح الخدمة</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
 
+          {/* WHY + WHO */}
           <div className="mt-10 grid gap-4 lg:grid-cols-2">
             <Card>
               <CardContent>
-                <SectionTitle title="لماذا ENG101.com؟" subtitle="—" />
-                <div className="space-y-2 text-sm text-meu-gray">
-                  <div>—</div>
-                  <div>—</div>
-                  <div>—</div>
+                <SectionTitle title="لماذا ENG-101.online؟" subtitle="لأنه مصمم لطلاب MEU" />
+                <div className="space-y-2 text-sm text-meu-gray text-right">
+                  <div>• بدل ما تفتح 10 أماكن… كل شيء عندك بمكان واحد.</div>
+                  <div>• ترتيب ذكي للمواد والمتطلبات والخطة الفصلية.</div>
+                  <div>• شات الجزري يساعدك تفهم بسرعة ويعطيك خطوات واضحة.</div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-meu-dark text-meu-white">
               <CardContent>
-                <SectionTitle title="لمن هذا النظام؟" subtitle="—" />
-                <div className="space-y-2 text-sm text-meu-gray">
-                  <div className="text-meu-gray">—</div>
-                  <div className="text-meu-gray">—</div>
-                  <div className="text-meu-gray">—</div>
+                <SectionTitle title="لمن هذا النظام؟" subtitle="إذا أنت طالب… فهو إلك" />
+                <div className="space-y-2 text-sm text-meu-gray text-right">
+                  <div className="text-meu-gray">• طلاب كلية الهندسة بجامعة الشرق الأوسط.</div>
+                  <div className="text-meu-gray">• اللي بدهم تنظيم موادهم وخطتهم بسرعة.</div>
+                  <div className="text-meu-gray">• اللي بدهم حساب معدل ومصادر بدون وجعة راس.</div>
                 </div>
               </CardContent>
             </Card>

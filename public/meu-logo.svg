@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
-  <rect width="240" height="240" fill="#ffffff"/>
-  <circle cx="120" cy="120" r="92" fill="#8A1F1F" opacity="0.12"/>
-  <circle cx="120" cy="120" r="70" fill="#8A1F1F" opacity="0.20"/>
-  <text x="120" y="132" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#2B2B2B">
-    MEU LOGO
-  </text>
-  <text x="120" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#777777">
-    Placeholder
-  </text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="100%" height="100%" fill="#8A1F1F"/><path fill="#FFFFFF" d="M24.035 24.15h1.62v11.57h-1.89v-7.47q0-.45.04-.97l-3.49 6.57q-.25.47-.76.47h-.31q-.51 0-.76-.47l-3.53-6.59.04.52q.01.25.01.47v7.47h-1.89V24.15h1.62q.15 0 .25.01t.19.04q.08.03.15.1.07.08.13.2l3.47 6.42q.13.26.25.53l.23.56q.11-.3.23-.57.12-.28.25-.54l3.42-6.4q.06-.12.14-.2.07-.07.15-.1.09-.03.19-.04t.25-.01m11.49 1.71h-5.13v3.21h4.05v1.66h-4.05V34h5.13v1.72h-7.29V24.15h7.29zm6.56 8.12q.63 0 1.12-.2.49-.21.83-.59.33-.37.51-.91t.18-1.2v-6.93h2.16v6.93q0 1.03-.34 1.91-.33.87-.95 1.51t-1.51.99q-.88.36-2 .36t-2-.36q-.89-.35-1.51-.99t-.95-1.51q-.34-.88-.34-1.91v-6.93h2.16v6.92q0 .67.18 1.2.18.54.52.92t.83.59q.49.2 1.11.2"/></svg>

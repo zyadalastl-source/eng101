@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "ENG101.com — الجزري",
+  title: "ENG-101.com — الجزري",
   description: "—"
 };
 

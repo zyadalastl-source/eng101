@@ -1,7 +1,7 @@
 export const NAV_LINKS = [
   { href: "/", label: "الرئيسية" },
-  { href: "/chatbot", label: "شات بوت الجزري" },
-  { href: "/courses", label: "المواد" },
+  { href: "/chatbot", label: " الجزري" },
+  { href: "/courses", label: "مكتبة المواد" },
   { href: "/gpa", label: "المعدل" },
   { href: "/bus", label: "الباصات" },
   { href: "/planner", label: "الخطة الذكية" },

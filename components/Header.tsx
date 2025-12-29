@@ -9,6 +9,9 @@ import { SITE } from "@/lib/theme";
 
 export default function Header() {
   const pathname = usePathname();
+  const MOBILE_NAV = NAV_LINKS.filter((l) =>
+  ["/", "/chatbot", "/courses", "/bus", "/planner", "/gpa"].includes(l.href)
+);
 
   return (
     <header
@@ -109,7 +112,7 @@ export default function Header() {
                 }
               `}</style>
 
-              {NAV_LINKS.map((l) => {
+               {MOBILE_NAV.map((l) => {
                 const active = pathname === l.href;
                 return (
                   <Link

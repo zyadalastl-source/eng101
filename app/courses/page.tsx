@@ -12,6 +12,19 @@ const tajawal = Tajawal({
   weight: ["400", "500", "700", "800"],
 });
 
+function normalizeArabic(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[\/\-_\(\)\[\]\{\}\s]/g, "") // يشيل رموز ومسافات
+    .replace(/أ|إ|آ/g, "ا")               // توحيد الألف
+    .replace(/ة/g, "ه")                   // ة → ه
+    .replace(/ى/g, "ي")                   // ى → ي
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/ال/g, "");                  // يشيل "ال" من أي مكان
+}
+
+
 type Course = {
   code: string;
   name: string;
@@ -161,15 +174,20 @@ export default function CoursesPage() {
   const [q, setQ] = useState("");
 
   const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return COURSES;
-    return COURSES.filter((c) => {
-      return (
-        c.code.toLowerCase().includes(s) ||
-        c.name.toLowerCase().includes(s)
-      );
-    });
-  }, [q]);
+  const s = q.trim();
+  if (!s) return COURSES;
+
+  const nq = normalizeArabic(s);
+
+  return COURSES.filter((c) => {
+    const code = c.code.toLowerCase();
+    const nameN = normalizeArabic(c.name);
+
+    // ✅ يطابق بأي جزء من الاسم + أو بالكود
+    return code.includes(s.toLowerCase()) || nameN.includes(nq);
+  });
+}, [q]);
+
 
   return (
     <div className={tajawal.className}>

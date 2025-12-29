@@ -36,12 +36,7 @@ const FEATURES = [
     desc: "سلايدات، ملفات، تلخيصات وروابط مفيدة لكل مادة.",
     icon: BookOpenText,
   },
-  {
-    title: "مخطّط المواد الذكي",
-    href: "/planner",
-    desc: "يبني لك خطة فصلية حسب المتطلبات السابقة وعدد الساعات.",
-    icon: LayoutGrid,
-  },
+  
   {
     title: "أدوات حساب المعدل",
     href: "/gpa",
@@ -214,6 +209,7 @@ export default function HomePage() {
           </div>
 
           {/* WHY + WHO */}
+          
           <div className="mt-10 grid gap-4 lg:grid-cols-2">
             <Card>
               <CardContent>
@@ -236,6 +232,7 @@ export default function HomePage() {
                 </div>
               </CardContent>
             </Card>
+            
           </div>
         </Container>
       </section>

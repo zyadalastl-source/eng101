@@ -90,7 +90,7 @@ export default function SuggestionsPage() {
               صندوق اقتراحات الطلاب
             </h1>
             <p className="mt-2 text-sm text-meu-gray">
-              اكتب ملاحظتك بسرعة — كل اقتراح يساعدنا نحسن المنصة والجزري.
+              اكتب ملاحظتك  — كل اقتراح يساعدنا نحسن المنصة والجزري.
             </p>
           </div>
 

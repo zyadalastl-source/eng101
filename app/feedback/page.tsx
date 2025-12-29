@@ -105,7 +105,7 @@ export default function SuggestionsPage() {
                         نموذج الإرسال
                       </div>
                       <div className="text-xs text-meu-gray mt-1">
-                        الحقول الاختيارية موضحة بوضوح
+                        الحقول الاختيارية موضحة 
                       </div>
                     </div>
 

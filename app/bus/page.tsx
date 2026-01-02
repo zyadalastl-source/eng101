@@ -32,7 +32,7 @@ const BUS_AREAS: BusArea[] = [
   { id: "8", name: "البيادر" },
   { id: "9", name: "جبل عمان عبدون" },
 
-  { id: "10", name: "مملكةالبنيات" },
+  { id: "10", name: "البنيات" },
   { id: "11", name: "دوار الواحة" },
   { id: "12", name: "مختار مول" },
   { id: "13", name: "مادبا غربي" },
@@ -61,10 +61,11 @@ const BUS_AREAS: BusArea[] = [
   { id: "34", name: "مرج الحمام" },
   { id: "35", name: "ناعور" },
   { id: "36", name: "طبربور" },
-  { id: "37", name: "جمهورية الاستقلال/الدخلية الاتحادية الشيوعية" },
+  { id: "37", name: "الاستقلال/الدخلية" },
   { id: "38", name: "الهاشمي الشمالي" },
   { id: "39", name: "الزرقاء" },
   { id: "40", name: "جاوا" },
+
 ];
 
 function cn(...classes: Array<string | false | null | undefined>) {

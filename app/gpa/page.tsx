@@ -45,19 +45,28 @@ export default function GPA_Page() {
   ]);
 
   const result = useMemo(() => {
-    let totalCredits = 0;
-    let totalPoints = 0;
+  // ✅ سياسة الحساب المطلوبة: إذا المادة 1 ساعة تُحسب 2 ساعات بالمعدل (بدون تغيير الواجهة)
+  const weightCredits = (cr: number) => (cr === 1 ? 2 : cr);
 
-    courses.forEach((c) => {
-      const pts = GRADE_POINTS[c.letter] ?? 0;
-      totalCredits += c.credits;
-      totalPoints += pts * c.credits;
-    });
+  let totalCredits = 0;         // الساعات كما يُدخلها الطالب (للواجهة)
+  let weightedCredits = 0;      // الساعات المعتمدة بالحساب
+  let totalPoints = 0;          // النقاط المعتمدة بالحساب
 
-    const gpa = totalCredits ? totalPoints / totalCredits : 0;
+  courses.forEach((c) => {
+    const pts = GRADE_POINTS[c.letter] ?? 0;
 
-    return { totalCredits, totalPoints, gpa };
-  }, [courses]);
+    totalCredits += c.credits;
+
+    const wCr = weightCredits(c.credits);
+    weightedCredits += wCr;
+    totalPoints += pts * wCr;
+  });
+
+  const gpa = weightedCredits ? totalPoints / weightedCredits : 0;
+
+  return { totalCredits, totalPoints, gpa };
+}, [courses]);
+
 
   function updateCourse(i: number, patch: Partial<Course>) {
     setCourses((prev) =>

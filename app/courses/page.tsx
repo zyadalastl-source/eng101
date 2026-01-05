@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Container from "@/components/Container";
 import SectionTitle from "@/components/SectionTitle";
 import { Card, CardContent } from "@/components/Card";
 import Link from "next/link";
 import { Tajawal } from "next/font/google";
+import { supabase } from "@/lib/supabase";
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
@@ -16,14 +17,13 @@ function normalizeArabic(text: string) {
   return text
     .toLowerCase()
     .replace(/[\/\-_\(\)\[\]\{\}\s]/g, "") // يشيل رموز ومسافات
-    .replace(/أ|إ|آ/g, "ا")               // توحيد الألف
-    .replace(/ة/g, "ه")                   // ة → ه
-    .replace(/ى/g, "ي")                   // ى → ي
+    .replace(/أ|إ|آ/g, "ا") // توحيد الألف
+    .replace(/ة/g, "ه") // ة → ه
+    .replace(/ى/g, "ي") // ى → ي
     .replace(/ؤ/g, "و")
     .replace(/ئ/g, "ي")
-    .replace(/ال/g, "");                  // يشيل "ال" من أي مكان
+    .replace(/ال/g, ""); // يشيل "ال" من أي مكان
 }
-
 
 type Course = {
   code: string;
@@ -34,7 +34,7 @@ type Course = {
   examsCount?: number;
 };
 
-const COURSES = [
+const COURSES: Course[] = [
   { code: "0181101", name: "تفاضل وتكامل (1)", href: "/courses/0181101" },
   { code: "0181102", name: "تفاضل وتكامل (2)", href: "/courses/0181102" },
   { code: "0182101", name: "تفاضل وتكامل (3)", href: "/courses/0182101" },
@@ -104,7 +104,6 @@ const COURSES = [
   { code: "0199999", name: "اسم المادة", href: "/courses/0199999" },
 ];
 
-
 function Pill({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/90 backdrop-blur">
@@ -141,7 +140,7 @@ function CourseCard({ c }: { c: Course }) {
             <div className="mt-4 grid grid-cols-3 gap-2">
               <Stat label="سلايدات" value={c.slidesCount} />
               <Stat label="ملخصات" value={c.summariesCount} />
-              <Stat label="امتحانات سنوات" value={c.examsCount} />
+              <Stat label="امتحانات" value={c.examsCount} />
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2 justify-end">
@@ -176,70 +175,121 @@ function CourseCard({ c }: { c: Course }) {
 export default function CoursesPage() {
   const [q, setQ] = useState("");
 
+  // ✅ خريطة العدادات لكل course_code
+  const [countsMap, setCountsMap] = useState<
+    Record<string, { slides: number; summaries: number; exams: number }>
+  >({});
+
+  // ✅ جلب العدادات مرة واحدة بدون أي تأثير على الواجهة
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      const { data, error } = await supabase
+        .from("materials")
+        .select("course_code, type");
+
+      if (error) {
+        console.error("Counts fetch error:", error.message);
+        return;
+      }
+
+      const map: Record<string, { slides: number; summaries: number; exams: number }> = {};
+
+      for (const row of data ?? []) {
+        const code = String((row as any).course_code ?? "");
+        const type = String((row as any).type ?? "");
+
+        if (!map[code]) map[code] = { slides: 0, summaries: 0, exams: 0 };
+
+        // ✅ طابق القيم حسب جدولك (افتراض شائع: slides / summary / exam)
+        if (type === "slides") map[code].slides++;
+        else if (type === "summary" || type === "summaries") map[code].summaries++;
+        else if (type === "exam" || type === "exams") map[code].exams++;
+      }
+
+      if (mounted) setCountsMap(map);
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
-  const s = q.trim();
-  if (!s) return COURSES;
+    const s = q.trim();
 
-  const nq = normalizeArabic(s);
+    // ✅ دمج العدادات مع الكورسات بدون تغيير على شكل البيانات عند العرض
+    const coursesWithCounts: Course[] = COURSES.map((c) => {
+      const counts = countsMap[c.code] ?? { slides: 0, summaries: 0, exams: 0 };
+      return {
+        ...c,
+        slidesCount: counts.slides,
+        summariesCount: counts.summaries,
+        examsCount: counts.exams,
+      };
+    });
 
-  return COURSES.filter((c) => {
-    const code = c.code.toLowerCase();
-    const nameN = normalizeArabic(c.name);
+    if (!s) return coursesWithCounts;
 
-    // ✅ يطابق بأي جزء من الاسم + أو بالكود
-    return code.includes(s.toLowerCase()) || nameN.includes(nq);
-  });
-}, [q]);
+    const nq = normalizeArabic(s);
 
+    return coursesWithCounts.filter((c) => {
+      const code = c.code.toLowerCase();
+      const nameN = normalizeArabic(c.name);
+
+      // ✅ يطابق بأي جزء من الاسم + أو بالكود
+      return code.includes(s.toLowerCase()) || nameN.includes(nq);
+    });
+  }, [q, countsMap]);
 
   return (
     <div className={tajawal.className}>
       {/* HERO صغير مثل الرئيسية */}
       <section className="relative overflow-hidden rounded-b-3xl">
-  {/* Background Image */}
-  <div className="absolute inset-0">
-    <img
-      src="/library-hero.png"
-      alt="Library Hero"
-      className="h-full w-full object-cover"
-    />
-    {/* Overlay خفيف للقراءة */}
-    <div className="absolute inset-0 bg-black/55" />
-  </div>
-
-  <Container>
-    <div className="relative py-10 md:py-14">
-      <div className="flex flex-wrap items-center justify-between gap-6">
-        {/* النص */}
-        <div className="text-right max-w-2xl">
-          <h1 className="text-2xl md:text-4xl font-extrabold text-white">
-            مكتبة المواد الهندسية
-          </h1>
-
-          <p className="mt-3 text-sm md:text-base text-white/85">
-            ابحث عن المادة وادخل مباشرة للسلايدات، الملخصات، وامتحانات السنوات.
-          </p>
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="/library-hero.png"
+            alt="Library Hero"
+            className="h-full w-full object-cover"
+          />
+          {/* Overlay خفيف للقراءة */}
+          <div className="absolute inset-0 bg-black/55" />
         </div>
 
-        {/* البحث */}
-        <div className="w-full md:w-[420px]">
-          <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="ابحث باسم أو رمز المادة…"
-              className="w-full rounded-xl bg-white px-4 py-3 text-right text-sm text-meu-dark outline-none"
-            />
-            <div className="mt-2 text-right text-xs text-white/70">
-              مثال: MATH101 — PHYS101 — CS101
+        <Container>
+          <div className="relative py-10 md:py-14">
+            <div className="flex flex-wrap items-center justify-between gap-6">
+              {/* النص */}
+              <div className="text-right max-w-2xl">
+                <h1 className="text-2xl md:text-4xl font-extrabold text-white">
+                  مكتبة المواد الهندسية
+                </h1>
+
+                <p className="mt-3 text-sm md:text-base text-white/85">
+                  ابحث عن المادة وادخل مباشرة للسلايدات، الملخصات، وامتحانات السنوات.
+                </p>
+              </div>
+
+              {/* البحث */}
+              <div className="w-full md:w-[420px]">
+                <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur">
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="ابحث باسم أو رمز المادة…"
+                    className="w-full rounded-xl bg-white px-4 py-3 text-right text-sm text-meu-dark outline-none"
+                  />
+                  <div className="mt-2 text-right text-xs text-white/70">
+                    مثال: MATH101 — PHYS101 — CS101
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </Container>
-</section>
-
+        </Container>
+      </section>
 
       {/* CONTENT */}
       <section className="py-10">

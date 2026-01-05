@@ -1,22 +1,25 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { key } = await req.json();
-  const adminKey = process.env.ADMIN_KEY || "";
+  const body = await req.json().catch(() => ({}));
+  const key = String(body?.key || "").trim();
 
-  if (!key || key !== adminKey) {
-    return NextResponse.json({ message: "مفتاح الأدمن غير صحيح" }, { status: 401 });
+  if (!process.env.ADMIN_KEY) {
+    return NextResponse.json({ ok: false, message: "ADMIN_KEY غير موجود" }, { status: 500 });
+  }
+
+  if (key !== process.env.ADMIN_KEY) {
+    return NextResponse.json({ ok: false, message: "مفتاح خاطئ" }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true });
 
-  // كوكي للأدمن
   res.cookies.set("admin_key", key, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // أسبوع
+    maxAge: 60 * 60 * 24 * 30,
   });
 
   return res;

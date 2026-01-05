@@ -1,27 +1,61 @@
-import { NextResponse } from "next/server";
+"use client";
 
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}));
-  const key = String(body?.key || "").trim();
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-  if (!process.env.ADMIN_KEY) {
-    return NextResponse.json({ ok: false, message: "ADMIN_KEY غير موجود" }, { status: 500 });
-  }
+export default function AdminLoginPage() {
+  const [key, setKey] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  if (key !== process.env.ADMIN_KEY) {
-    return NextResponse.json({ ok: false, message: "مفتاح خاطئ" }, { status: 401 });
-  }
+  const submit = async () => {
+    try {
+      setLoading(true);
 
-  const res = NextResponse.json({ ok: true });
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key }),
+        credentials: "include",
+      });
 
-  // ✅ خزّن الكوكي
-  res.cookies.set("admin_key", key, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30, // 30 يوم
-  });
+      const json = await res.json().catch(() => ({}));
 
-  return res;
+      if (!res.ok || !json?.ok) {
+        alert(json?.message || "فشل تسجيل الدخول");
+        return;
+      }
+
+      router.push("/admin/library");
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-2xl border bg-white p-6 shadow-sm">
+        <h1 className="text-xl font-bold mb-2 text-center">تسجيل دخول الأدمن</h1>
+        <p className="text-sm text-gray-600 mb-4 text-center">
+          أدخل مفتاح الأدمن للدخول للوحة التحكم
+        </p>
+
+        <input
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
+          placeholder="ENG101_ADMIN_SECRET_2026"
+          className="w-full rounded-lg border px-3 py-2"
+        />
+
+        <button
+          onClick={submit}
+          disabled={loading}
+          className="mt-4 w-full rounded-lg bg-meu-red px-4 py-2 text-white hover:opacity-90 disabled:opacity-60"
+        >
+          {loading ? "جارٍ الدخول..." : "دخول"}
+        </button>
+      </div>
+    </div>
+  );
 }

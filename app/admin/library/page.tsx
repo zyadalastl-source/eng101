@@ -137,52 +137,52 @@ export default function AdminLibraryPage() {
     setUploadProgress(0);
     setUploadMsg("بدء الرفع...");
 
-    await new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/admin/upload", true);
+        await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
 
-      // ✅ 60 ثانية كفاية لملف صغير (غيرها إذا بدك)
-      xhr.timeout = 60000;
+    xhr.open("POST", "/api/admin/upload", true);
 
-      xhr.upload.onprogress = (e) => {
+    // ⭐⭐ هذا السطر هو الحل
+    xhr.withCredentials = true;
+
+    // ⏱️ مهلة الرفع
+    xhr.timeout = 60000;
+
+    xhr.upload.onprogress = (e) => {
         if (!e.lengthComputable) return;
         const pct = Math.round((e.loaded / e.total) * 100);
         setUploadProgress(pct);
         setUploadMsg(`جارٍ رفع الملف... ${pct}%`);
-      };
+    };
 
-      xhr.onload = () => {
+    xhr.onload = () => {
         try {
-          const json = JSON.parse(xhr.responseText || "{}");
-          if (xhr.status >= 200 && xhr.status < 300 && json.ok) {
+        const json = JSON.parse(xhr.responseText || "{}");
+        if (xhr.status >= 200 && xhr.status < 300 && json.ok) {
             setUploadProgress(100);
             setUploadMsg("تم رفع الملف ✅");
             resolve();
-          } else {
-            const msg = json?.message || `فشل (Status ${xhr.status})`;
-            reject(new Error(msg));
-          }
-        } catch {
-          reject(new Error("رد غير صالح من السيرفر"));
+        } else {
+            reject(new Error(json?.message || "فشل الرفع"));
         }
-      };
+        } catch {
+        reject(new Error("رد غير صالح من السيرفر"));
+        }
+    };
 
-      xhr.ontimeout = () => reject(new Error("الرفع أخذ وقت طويل (Timeout)"));
-      xhr.onerror = () => reject(new Error("مشكلة شبكة أثناء الرفع"));
+    xhr.onerror = () => reject(new Error("مشكلة شبكة"));
+    xhr.ontimeout = () => reject(new Error("انتهى الوقت"));
 
-      xhr.send(fd);
-    }).catch((err: any) => {
-      setLoading(false);
-      setUploadMsg("فشل الرفع ❌");
-      alert("خطأ: " + (err?.message || "فشل"));
-      throw err;
+    xhr.send(fd);
     });
+
 
     setLoading(false);
     resetForm();
     await loadRows();
     alert("تم رفع الملف وإضافته ✅");
   };
+  
 
   const deleteRow = async (id: string) => {
     if (!confirm("متأكد بدك تحذف؟")) return;
@@ -256,7 +256,7 @@ export default function AdminLibraryPage() {
             <input
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="مثال: دفتر طالبية 2025"
+              placeholder="مثال: شابتر الاول 2025"
               className="w-full rounded-lg border px-3 py-2"
             />
           </div>

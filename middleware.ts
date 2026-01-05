@@ -1,29 +1,36 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
-};
-
 export function middleware(req: NextRequest) {
-  const adminKey = process.env.ADMIN_KEY || "";
-  const headerKey = req.headers.get("x-admin-key") || "";
-  const cookieKey = req.cookies.get("admin_key")?.value || "";
+  const { pathname } = req.nextUrl;
 
-  const ok =
-    (headerKey && headerKey === adminKey) ||
-    (cookieKey && cookieKey === adminKey);
-
-  // السماح لصفحة تسجيل الدخول
-  if (req.nextUrl.pathname.startsWith("/admin/login")) {
+  // ✅ اسمح لصفحة اللوجن و API اللوجن/اللوجاوت بدون تحقق
+  if (
+    pathname === "/admin/login" ||
+    pathname === "/api/admin/login" ||
+    pathname === "/api/admin/logout"
+  ) {
     return NextResponse.next();
   }
 
-  if (!ok) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+  // ✅ احمِ كل صفحات /admin/*
+  if (pathname.startsWith("/admin")) {
+    const cookieKey = req.cookies.get("admin_key")?.value || "";
+    const adminKey = process.env.ADMIN_KEY || "";
+
+    if (!adminKey) {
+      // إذا ADMIN_KEY مش موجود على السيرفر
+      return NextResponse.redirect(new URL("/admin/login?e=missing", req.url));
+    }
+
+    if (cookieKey !== adminKey) {
+      return NextResponse.redirect(new URL("/admin/login?e=unauth", req.url));
+    }
   }
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
+};

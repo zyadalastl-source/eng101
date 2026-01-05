@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { COURSES } from "@/lib/courses";
 import { FileText, Trash2, PlusCircle, Upload, Link as LinkIcon } from "lucide-react";
 
@@ -64,27 +63,31 @@ export default function AdminLibraryPage() {
     setUploadMsg("");
   };
 
-  // ✅ القراءة تبقى من Supabase (SELECT policy)
+  // ✅ القراءة للأدمن من API (Service role) + cookie
   const loadRows = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("materials")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setLoading(false);
+    try {
+      const r = await fetch("/api/admin/materials", { credentials: "include" });
+      const j = await r.json().catch(() => ({}));
 
-    if (error) {
-      alert("خطأ في جلب البيانات: " + error.message);
-      return;
+      if (!r.ok || !j.ok) {
+        alert("خطأ في جلب البيانات: " + (j?.message || `فشل (Status ${r.status})`));
+        return;
+      }
+
+      setRows((j.rows || []) as MaterialRow[]);
+    } catch (e: any) {
+      alert("مشكلة بالشبكة: " + (e?.message || "فشل"));
+    } finally {
+      setLoading(false);
     }
-    setRows((data || []) as MaterialRow[]);
   };
 
   useEffect(() => {
     loadRows();
   }, []);
 
-  // ✅ add link (بدل insert من الفرونت -> API على السيرفر)
+  // ✅ add link (API)
   const addLink = async () => {
     if (!courseCode) return alert("اختر المادة");
     if (!title.trim()) return alert("اكتب العنوان");
@@ -123,7 +126,7 @@ export default function AdminLibraryPage() {
     }
   };
 
-  // ✅ upload file (XHR progress + timeout) + withCredentials
+  // ✅ upload file (XHR progress + withCredentials)
   const uploadFile = async () => {
     if (!courseCode) return alert("اختر المادة");
     if (!title.trim()) return alert("اكتب العنوان");
@@ -131,7 +134,6 @@ export default function AdminLibraryPage() {
 
     const yearNum = type === "exam" && year.trim() ? Number(year.trim()) : null;
 
-    // ✅ حد حجم (مهم عشان ما يعلق)
     const maxMB = 20;
     if (file.size > maxMB * 1024 * 1024) {
       alert(`الملف كبير (أكثر من ${maxMB}MB)`);
@@ -152,13 +154,8 @@ export default function AdminLibraryPage() {
     try {
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-
         xhr.open("POST", "/api/admin/upload", true);
-
-        // ✅ مهم: إرسال الكوكي مع الطلب
         xhr.withCredentials = true;
-
-        // ✅ 60 ثانية (عدّلها إذا ملفات كبيرة)
         xhr.timeout = 60000;
 
         xhr.upload.onprogress = (e) => {
@@ -200,7 +197,7 @@ export default function AdminLibraryPage() {
     }
   };
 
-  // ✅ delete (بدل delete من الفرونت -> API على السيرفر)
+  // ✅ delete (API)
   const deleteRow = async (id: string) => {
     if (!confirm("متأكد بدك تحذف؟")) return;
 

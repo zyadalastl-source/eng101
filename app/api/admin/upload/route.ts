@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
+    const adminSecret = process.env.ADMIN_SECRET || process.env.ADMIN_KEY || "";
+    const cookieKey = cookies().get("admin_key")?.value || "";
+
+    if (!adminSecret || cookieKey !== adminSecret) {
+      return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
 
     const course_code = String(formData.get("course_code") || "").trim();
@@ -19,13 +27,6 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    const adminKey = process.env.ADMIN_KEY || "";
-const reqKey = req.headers.get("x-admin-key") || "";
-
-if (!adminKey || reqKey !== adminKey) {
-  return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
-}
-
 
     const BUCKET = "library";
 
@@ -33,11 +34,9 @@ if (!adminKey || reqKey !== adminKey) {
     const safeName = `${crypto.randomUUID()}.${ext}`;
     const filePath = `${course_code}/${type}/${safeName}`;
 
-    // ✅ Node لازم Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 1) رفع للـ Storage
     const uploadRes = await supabaseAdmin.storage
       .from(BUCKET)
       .upload(filePath, buffer, {
@@ -48,24 +47,18 @@ if (!adminKey || reqKey !== adminKey) {
     if (uploadRes.error) {
       console.error("UPLOAD ERROR:", uploadRes.error);
       return NextResponse.json(
-        {
-          ok: false,
-          message: "فشل رفع الملف إلى التخزين",
-          debug: uploadRes.error, // ✅ مهم
-          hint: "افتح التيرمنال وشوف UPLOAD ERROR بالتفصيل",
-        },
+        { ok: false, message: "فشل رفع الملف إلى التخزين", debug: uploadRes.error },
         { status: 500 }
       );
     }
 
-    // 2) رابط عام
+    // ✅ هذا الرابط يفتح فقط إذا Bucket Public
     const { data: publicUrlData } = supabaseAdmin.storage
       .from(BUCKET)
       .getPublicUrl(filePath);
 
     const publicUrl = publicUrlData.publicUrl;
 
-    // 3) إدخال في materials
     const insertRes = await supabaseAdmin.from("materials").insert({
       course_code,
       type,
@@ -77,11 +70,7 @@ if (!adminKey || reqKey !== adminKey) {
     if (insertRes.error) {
       console.error("DB ERROR:", insertRes.error);
       return NextResponse.json(
-        {
-          ok: false,
-          message: "فشل حفظ البيانات في الجدول",
-          debug: insertRes.error, // ✅ مهم
-        },
+        { ok: false, message: "فشل حفظ البيانات في الجدول", debug: insertRes.error },
         { status: 500 }
       );
     }

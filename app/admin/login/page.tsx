@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
         <input
           value={key}
           onChange={(e) => setKey(e.target.value)}
-          placeholder="ENG101_ADMIN_SECRET_2026"
+          placeholder="enter admin pass"
           className="w-full rounded-lg border px-3 py-2"
         />
 

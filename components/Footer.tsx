@@ -28,7 +28,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-meu-white/10 py-4 text-center text-xs text-meu-gray">
-          — 
+          © 2026 Titans Heroes. All rights reserved.
         </div>
       </Container>
     </footer>

@@ -6,7 +6,9 @@ export default function Footer() {
       <Container>
         <div className="grid gap-8 py-10 md:grid-cols-3">
           <div>
-            <div className="text-sm font-semibold">ENG101.com</div>
+            <div className="text-sm font-semibold"> عن ENG101.com </div>
+            
+            
             <div className="mt-2 text-xs text-meu-gray">—</div>
           </div>
           <div>

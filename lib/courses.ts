@@ -1,4 +1,7 @@
 export const COURSES = [
+  { code: "1", name: "الخطة الاسترشادية - هندسة الانظمة الذكية ", href: "/courses/1" },
+  { code: "2", name: "الخطة الاسترشادية هندسة الطاقة المتجددة", href: "/courses/2" },
+
   { code: "0181101", name: "تفاضل وتكامل (1)", href: "/courses/0181101" },
   { code: "0181102", name: "تفاضل وتكامل (2)", href: "/courses/0181102" },
   { code: "0182101", name: "تفاضل وتكامل (3)", href: "/courses/0182101" },

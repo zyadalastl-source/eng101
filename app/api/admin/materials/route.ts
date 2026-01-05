@@ -4,24 +4,30 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
-function isAdmin(req: Request) {
+// ✅ يتحقق من: Header أو Cookie أو (Body للـ POST)
+async function isAdmin(req: Request) {
   const adminSecret = (process.env.ADMIN_SECRET || process.env.ADMIN_KEY || "").trim();
 
-  // 1) Header (الأفضل – بيشتغل على أي دومين)
   const headerKey =
     (req.headers.get("x-admin-key") || "").trim() ||
-    (req.headers.get("X-Admin-Key") || "").trim() ||
     (req.headers.get("authorization") || "").replace("Bearer ", "").trim();
 
-  // 2) Cookie (اختياري – إذا موجود)
   const cookieKey = (cookies().get("admin_key")?.value || "").trim();
 
-  return !!adminSecret && (headerKey === adminSecret || cookieKey === adminSecret);
+  // Body key للـ POST فقط
+  let bodyKey = "";
+  try {
+    const clone = req.clone();
+    const body = await clone.json();
+    bodyKey = String(body?.admin_key || "").trim();
+  } catch {}
+
+  return !!adminSecret && (headerKey === adminSecret || cookieKey === adminSecret || bodyKey === adminSecret);
 }
 
 // ✅ GET: جلب كل المواد للأدمن
 export async function GET(req: Request) {
-  if (!isAdmin(req)) {
+  if (!(await isAdmin(req))) {
     return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
   }
 
@@ -39,14 +45,14 @@ export async function GET(req: Request) {
 
 // ✅ POST: إضافة رابط
 export async function POST(req: Request) {
-  if (!isAdmin(req)) {
+  if (!(await isAdmin(req))) {
     return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
 
   const course_code = String(body.course_code || "").trim();
-  const type = String(body.type || "").trim(); // slides / summary / exam
+  const type = String(body.type || "").trim();
   const title = String(body.title || "").trim();
   const year = body.year === null || body.year === undefined ? null : Number(body.year);
   const url = String(body.url || "").trim();
@@ -75,7 +81,7 @@ export async function POST(req: Request) {
 
 // ✅ DELETE: حذف صف
 export async function DELETE(req: Request) {
-  if (!isAdmin(req)) {
+  if (!(await isAdmin(req))) {
     return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
   }
 

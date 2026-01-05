@@ -353,7 +353,7 @@ export default function ChatbotPage() {
               </div>
 
               <div className="mt-3 text-center text-xs text-meu-gray">
-                تلميح: اكتب اسم مادة/دكتور/ملخص/سلايدات… وسأرشدك بسرعة.
+               اسال يا غلام 
               </div>
 
               <style jsx global>{`

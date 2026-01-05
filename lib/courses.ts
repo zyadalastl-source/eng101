@@ -65,4 +65,5 @@ export const COURSES = [
   { code: "1914304", name: "تصميم ومحاكاة (1)", href: "/courses/1914304" },
 
   { code: "1931201", name: "الرسم الهندسي", href: "/courses/1931201" },
+  { code: "0199999", name: "اسم المادة", href: "/courses/0199999" },
 ];

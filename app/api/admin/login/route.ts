@@ -21,5 +21,3 @@ export async function POST(req: Request) {
 
   return res;
 }
-await fetch("/api/admin/logout", { method: "POST" });
-location.href = "/admin/login";

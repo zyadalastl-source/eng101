@@ -14,14 +14,14 @@ const tajawal = Tajawal({
 /* سلم الأحرف – MEU */
 const GRADE_POINTS: Record<string, number> = {
   "A": 4,
-  "A-": 3.67,
-  "B+": 3.33,
+  "A-": 3.75,
+  "B+": 3.5,
   "B": 3,
-  "B-": 2.67,
-  "C+": 2.33,
+  "B-": 2.75,
+  "C+": 2.5,
   "C": 2,
-  "C-": 1.67,
-  "D+": 1.33,
+  "C-": 1.75,
+  "D+": 1.5,
   "D": 1,
   "D-": 0.75,
   "F": 0,
@@ -45,28 +45,19 @@ export default function GPA_Page() {
   ]);
 
   const result = useMemo(() => {
-  // ✅ سياسة الحساب المطلوبة: إذا المادة 1 ساعة تُحسب 2 ساعات بالمعدل (بدون تغيير الواجهة)
-  const weightCredits = (cr: number) => (cr === 1 ? 2 : cr);
+    let totalCredits = 0;
+    let totalPoints = 0;
 
-  let totalCredits = 0;         // الساعات كما يُدخلها الطالب (للواجهة)
-  let weightedCredits = 0;      // الساعات المعتمدة بالحساب
-  let totalPoints = 0;          // النقاط المعتمدة بالحساب
+    courses.forEach((c) => {
+      const pts = GRADE_POINTS[c.letter] ?? 0;
+      totalCredits += c.credits;
+      totalPoints += pts * c.credits;
+    });
 
-  courses.forEach((c) => {
-    const pts = GRADE_POINTS[c.letter] ?? 0;
+    const gpa = totalCredits ? totalPoints / totalCredits : 0;
 
-    totalCredits += c.credits;
-
-    const wCr = weightCredits(c.credits);
-    weightedCredits += wCr;
-    totalPoints += pts * wCr;
-  });
-
-  const gpa = weightedCredits ? totalPoints / weightedCredits : 0;
-
-  return { totalCredits, totalPoints, gpa };
-}, [courses]);
-
+    return { totalCredits, totalPoints, gpa };
+  }, [courses]);
 
   function updateCourse(i: number, patch: Partial<Course>) {
     setCourses((prev) =>

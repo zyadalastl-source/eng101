@@ -64,6 +64,7 @@ export default function AdminLibraryPage() {
     setUploadMsg("");
   };
 
+  // ✅ القراءة تبقى من Supabase (SELECT policy)
   const loadRows = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -83,7 +84,7 @@ export default function AdminLibraryPage() {
     loadRows();
   }, []);
 
-  // add link
+  // ✅ add link (بدل insert من الفرونت -> API على السيرفر)
   const addLink = async () => {
     if (!courseCode) return alert("اختر المادة");
     if (!title.trim()) return alert("اكتب العنوان");
@@ -92,26 +93,37 @@ export default function AdminLibraryPage() {
     const yearNum = type === "exam" && year.trim() ? Number(year.trim()) : null;
 
     setLoading(true);
-    const { error } = await supabase.from("materials").insert({
-      course_code: courseCode,
-      type,
-      title: title.trim(),
-      year: yearNum,
-      url: url.trim(),
-    });
-    setLoading(false);
+    try {
+      const r = await fetch("/api/admin/materials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          course_code: courseCode,
+          type,
+          title: title.trim(),
+          year: yearNum,
+          url: url.trim(),
+        }),
+        credentials: "include",
+      });
 
-    if (error) {
-      alert("خطأ بالحفظ: " + error.message);
-      return;
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) {
+        alert("خطأ بالحفظ: " + (j?.message || `فشل (Status ${r.status})`));
+        return;
+      }
+
+      resetForm();
+      await loadRows();
+      alert("تمت الإضافة ✅");
+    } catch (e: any) {
+      alert("مشكلة بالشبكة: " + (e?.message || "فشل"));
+    } finally {
+      setLoading(false);
     }
-
-    resetForm();
-    await loadRows();
-    alert("تمت الإضافة ✅");
   };
 
-  // upload file (XHR progress + timeout)
+  // ✅ upload file (XHR progress + timeout) + withCredentials
   const uploadFile = async () => {
     if (!courseCode) return alert("اختر المادة");
     if (!title.trim()) return alert("اكتب العنوان");
@@ -137,64 +149,80 @@ export default function AdminLibraryPage() {
     setUploadProgress(0);
     setUploadMsg("بدء الرفع...");
 
-        await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
 
-    xhr.open("POST", "/api/admin/upload", true);
+        xhr.open("POST", "/api/admin/upload", true);
 
-    // ⭐⭐ هذا السطر هو الحل
-    xhr.withCredentials = true;
+        // ✅ مهم: إرسال الكوكي مع الطلب
+        xhr.withCredentials = true;
 
-    // ⏱️ مهلة الرفع
-    xhr.timeout = 60000;
+        // ✅ 60 ثانية (عدّلها إذا ملفات كبيرة)
+        xhr.timeout = 60000;
 
-    xhr.upload.onprogress = (e) => {
-        if (!e.lengthComputable) return;
-        const pct = Math.round((e.loaded / e.total) * 100);
-        setUploadProgress(pct);
-        setUploadMsg(`جارٍ رفع الملف... ${pct}%`);
-    };
+        xhr.upload.onprogress = (e) => {
+          if (!e.lengthComputable) return;
+          const pct = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(pct);
+          setUploadMsg(`جارٍ رفع الملف... ${pct}%`);
+        };
 
-    xhr.onload = () => {
-        try {
-        const json = JSON.parse(xhr.responseText || "{}");
-        if (xhr.status >= 200 && xhr.status < 300 && json.ok) {
-            setUploadProgress(100);
-            setUploadMsg("تم رفع الملف ✅");
-            resolve();
-        } else {
-            reject(new Error(json?.message || "فشل الرفع"));
-        }
-        } catch {
-        reject(new Error("رد غير صالح من السيرفر"));
-        }
-    };
+        xhr.onload = () => {
+          try {
+            const json = JSON.parse(xhr.responseText || "{}");
+            if (xhr.status >= 200 && xhr.status < 300 && json.ok) {
+              setUploadProgress(100);
+              setUploadMsg("تم رفع الملف ✅");
+              resolve();
+            } else {
+              reject(new Error(json?.message || `فشل (Status ${xhr.status})`));
+            }
+          } catch {
+            reject(new Error("رد غير صالح من السيرفر"));
+          }
+        };
 
-    xhr.onerror = () => reject(new Error("مشكلة شبكة"));
-    xhr.ontimeout = () => reject(new Error("انتهى الوقت"));
+        xhr.ontimeout = () => reject(new Error("الرفع أخذ وقت طويل (Timeout)"));
+        xhr.onerror = () => reject(new Error("مشكلة شبكة أثناء الرفع"));
 
-    xhr.send(fd);
-    });
+        xhr.send(fd);
+      });
 
-
-    setLoading(false);
-    resetForm();
-    await loadRows();
-    alert("تم رفع الملف وإضافته ✅");
+      resetForm();
+      await loadRows();
+      alert("تم رفع الملف وإضافته ✅");
+    } catch (err: any) {
+      setUploadMsg("فشل الرفع ❌");
+      alert("خطأ: " + (err?.message || "فشل"));
+    } finally {
+      setLoading(false);
+    }
   };
-  
 
+  // ✅ delete (بدل delete من الفرونت -> API على السيرفر)
   const deleteRow = async (id: string) => {
     if (!confirm("متأكد بدك تحذف؟")) return;
-    setLoading(true);
-    const { error } = await supabase.from("materials").delete().eq("id", id);
-    setLoading(false);
 
-    if (error) {
-      alert("خطأ بالحذف: " + error.message);
-      return;
+    setLoading(true);
+    try {
+      const r = await fetch(`/api/admin/materials?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) {
+        alert("خطأ بالحذف: " + (j?.message || `فشل (Status ${r.status})`));
+        return;
+      }
+
+      await loadRows();
+    } catch (e: any) {
+      alert("مشكلة بالشبكة: " + (e?.message || "فشل"));
+    } finally {
+      setLoading(false);
     }
-    await loadRows();
   };
 
   return (

@@ -1,26 +1,35 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}));
-  const key = String(body?.key || "").trim();
+  try {
+    const { key } = await req.json();
 
-  if (!process.env.ADMIN_KEY) {
-    return NextResponse.json({ ok: false, message: "ADMIN_KEY غير موجود" }, { status: 500 });
+    if (!process.env.ADMIN_SECRET) {
+      return NextResponse.json(
+        { ok: false, message: "ADMIN_SECRET غير موجود على السيرفر" },
+        { status: 500 }
+      );
+    }
+
+    if (String(key || "").trim() !== String(process.env.ADMIN_SECRET).trim()) {
+      return NextResponse.json({ ok: false, message: "مفتاح خاطئ" }, { status: 401 });
+    }
+
+    const res = NextResponse.json({ ok: true });
+
+    // Cookie للأدمن
+    res.cookies.set("admin_key", "1", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30, // 30 يوم
+    });
+
+    return res;
+  } catch {
+    return NextResponse.json({ ok: false, message: "خطأ بالسيرفر" }, { status: 500 });
   }
-
-  if (key !== process.env.ADMIN_KEY) {
-    return NextResponse.json({ ok: false, message: "مفتاح خاطئ" }, { status: 401 });
-  }
-
-  const res = NextResponse.json({ ok: true });
-
-  res.cookies.set("admin_key", key, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
-
-  return res;
 }

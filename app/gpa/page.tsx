@@ -194,7 +194,7 @@ export default function GPA_Page() {
                       المعدل الفصلي
                     </span>
                     <span className="text-3xl font-extrabold text-meu-red">
-                      {roundTo(result.gpa+0.02).toFixed(2)}
+                      {roundTo(result.gpa).toFixed(2)}
                     </span>
                   </div>
                 </div>

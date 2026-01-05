@@ -11,7 +11,7 @@ const tajawal = Tajawal({
   weight: ["400", "500", "700", "800"],
 });
 
-/* سلم الأحرف – MEU */
+
 const GRADE_POINTS: Record<string, number> = {
   "A": 4,
   "A-": 3.75,

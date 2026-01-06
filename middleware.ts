@@ -1,19 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const pathname = req.nextUrl.pathname;
 
-  // نحمي كل admin ما عدا صفحة الدخول وملفات next الداخلية
   const isAdminPath = pathname.startsWith("/admin");
-  const isLogin = pathname === "/admin/login";
+  const isLoginPage = pathname === "/admin/login";
 
-  if (isAdminPath && !isLogin) {
-    const adminKey = req.cookies.get("admin_key")?.value;
-    if (!adminKey) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/admin/login";
-      return NextResponse.redirect(url);
-    }
+  // إذا مش مسار أدمن → اتركه
+  if (!isAdminPath) {
+    return NextResponse.next();
+  }
+
+  // اسمح لصفحة تسجيل الدخول
+  if (isLoginPage) {
+    return NextResponse.next();
+  }
+
+  // افحص الكوكي
+  const adminKey = req.cookies.get("admin_key")?.value;
+
+  if (adminKey !== process.env.ADMIN_SECRET){
+    const url = req.nextUrl.clone();
+    url.pathname = "/admin/login";
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();

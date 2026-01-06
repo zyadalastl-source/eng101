@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useMemo, useState } from "react";
 import { COURSES } from "@/lib/courses";
 import { FileText, Trash2, PlusCircle, Upload, Link as LinkIcon } from "lucide-react";
@@ -32,14 +31,23 @@ async function checkAdmin() {
 
 
 export default function AdminLibraryPage() {
+  
   const router = useRouter();
-
-  useEffect(() => {
+   useEffect(() => {
     (async () => {
       const ok = await checkAdmin();
       if (!ok) router.replace("/admin/login");
     })();
   }, [router]);
+
+  async function handleLogout() {
+  await fetch("/api/logout", { method: "POST" });
+  router.replace("/admin/login");
+  router.refresh();
+}
+
+
+  
 
   const [courseCode, setCourseCode] = useState(COURSES[0]?.code || "");
   const [type, setType] = useState<MaterialRow["type"]>("slides");
@@ -124,6 +132,7 @@ export default function AdminLibraryPage() {
         }),
         credentials: "include",
       });
+      
 
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) {
@@ -245,6 +254,16 @@ export default function AdminLibraryPage() {
         <h1 className="text-2xl font-bold">لوحة الأدمن – مكتبة المواد</h1>
       </div>
 
+       {/* زر تسجيل الخروج */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleLogout}
+          className="rounded-xl border border-meu-gray/20 px-3 py-2 text-sm font-bold text-meu-dark hover:bg-meu-gray/10"
+        >
+          تسجيل الخروج
+        </button>
+      </div>
+
       {/* Form */}
       <div className="rounded-2xl border bg-white p-5 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
@@ -256,6 +275,8 @@ export default function AdminLibraryPage() {
             تحديث
           </button>
         </div>
+
+        
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Course */}
@@ -416,8 +437,10 @@ export default function AdminLibraryPage() {
           </button>
         </div>
       </div>
+      
 
       {/* Table */}
+      
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="p-4 border-b flex items-center gap-2">
           <FileText className="text-meu-red" />

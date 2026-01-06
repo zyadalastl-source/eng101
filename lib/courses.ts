@@ -1,7 +1,21 @@
-export const COURSES = [
-  { code: "0181101", name: "تفاضل وتكامل (1)", href: "/courses/0181101" , hours: 3 , category: "كلية اجبارية"},
-  { code: "0181102", name: "تفاضل وتكامل (2)", href: "/courses/0181102" , hours: 3 , category: "كلية اجبارية"},
-  { code: "0182101", name: "تفاضل وتكامل (3)", href: "/courses/0182101" , hours: 3 , category: "كلية اجبارية"},
+export type CourseMeta = {
+  code: string;
+  name: string;
+  href: string;
+  /** Credit hours (optional) */
+  hours?: number | null;
+  /** Category / classification (optional) */
+  category?: string | null;
+};
+
+/**
+ * Single source of truth for courses.
+ * IMPORTANT: keep `code`, `name`, and `href` stable because multiple pages depend on them.
+ */
+export const COURSES: CourseMeta[] = [
+  { code: "0181101", name: "تفاضل وتكامل (1)", href: "/courses/0181101", hours: 3, category: "كلية اجبارية" },
+  { code: "0181102", name: "تفاضل وتكامل (2)", href: "/courses/0181102", hours: 3, category: "كلية اجبارية" },
+  { code: "0182101", name: "تفاضل وتكامل (3)", href: "/courses/0182101", hours: 3, category: "كلية اجبارية" },
 
   { code: "0181201", name: "فيزياء عامة (1)", href: "/courses/0181201" },
   { code: "0181203", name: "فيزياء عامة (2)", href: "/courses/0181203" },
@@ -67,3 +81,13 @@ export const COURSES = [
   { code: "1931201", name: "الرسم الهندسي", href: "/courses/1931201" },
   { code: "0199999", name: "اسم المادة", href: "/courses/0199999" },
 ];
+
+export function getCourseByCode(code: string): CourseMeta | undefined {
+  return COURSES.find(x => x.code === code);
+}
+
+export function formatCreditHours(hours?: number | null): string {
+  if (!hours || Number.isNaN(hours)) return "N/A";
+  const h = Number(hours);
+  return `${h} Credit Hour${h === 1 ? "" : "s"}`;
+}

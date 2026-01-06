@@ -49,6 +49,7 @@ export default async function CoursePage({ params }: PageProps) {
     icon: React.ReactNode;
     items: Material[];
   }) => (
+    
     <div className="rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="mb-4 flex items-center gap-2">
         <div className="rounded-full bg-meu-red/10 p-2 text-meu-red">{icon}</div>
@@ -78,6 +79,7 @@ export default async function CoursePage({ params }: PageProps) {
         </ul>
       )}
     </div>
+    
   );
 
   return (
@@ -85,8 +87,14 @@ export default async function CoursePage({ params }: PageProps) {
       <Container>
         <div className="py-10 space-y-10">
           <div>
-            <h1 className="text-2xl font-extrabold">صفحة المادة</h1>
-            <p className="mt-1 text-gray-500">كل ما يتعلق بالمادة من سلايدات، ملخصات، وامتحانات سنوات.</p>
+            <h1 className="text-2xl font-extrabold">
+            {meta?.name ? meta.name : "صفحة المادة"}{" "}
+            <span className="text-meu-red">— {params.code}</span>
+          </h1>
+
+          <p className="mt-1 text-gray-500">
+            كل ما يتعلق بالمادة من سلايدات، ملخصات، وامتحانات سنوات.
+          </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,15 +1,10 @@
 import { supabaseServer } from "@/lib/supabase-server";
+import { formatCreditHours, getCourseByCode } from "@/lib/courses";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import Container from "@/components/Container";
 import { Tajawal } from "next/font/google";
-import {
-  FileText,
-  Layers,
-  BookOpen,
-  Clock,
-  Tag,
-} from "lucide-react";
+import { FileText, Layers, BookOpen, Clock, Tag } from "lucide-react";
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
@@ -31,28 +26,20 @@ type Material = {
 };
 
 export default async function CoursePage({ params }: PageProps) {
-  /* =========================
-     جلب البيانات من Supabase
-  ========================= */
+  const meta = getCourseByCode(params.code);
+
   const { data: materials } = await supabaseServer
     .from("materials")
     .select("*")
     .eq("course_code", params.code)
     .order("created_at", { ascending: false });
 
-  const slides = (materials || []).filter(
-    (m: Material) => m.type === "slides"
-  );
-  const summaries = (materials || []).filter(
-    (m: Material) => m.type === "summary"
-  );
+  const slides = (materials || []).filter((m: Material) => m.type === "slides");
+  const summaries = (materials || []).filter((m: Material) => m.type === "summary");
   const exams = (materials || [])
     .filter((m: Material) => m.type === "exam")
     .sort((a: Material, b: Material) => (b.year || 0) - (a.year || 0));
 
-  /* =========================
-     Component الكرت
-  ========================= */
   const LibraryCard = ({
     title,
     icon,
@@ -64,24 +51,16 @@ export default async function CoursePage({ params }: PageProps) {
   }) => (
     <div className="rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="mb-4 flex items-center gap-2">
-        <div className="rounded-full bg-meu-red/10 p-2 text-meu-red">
-          {icon}
-        </div>
+        <div className="rounded-full bg-meu-red/10 p-2 text-meu-red">{icon}</div>
         <h3 className="font-bold text-lg">{title}</h3>
-        {items.length > 0 && (
-          <span className="mr-auto text-sm text-gray-500">
-            ({items.length})
-          </span>
-        )}
+        {items.length > 0 && <span className="mr-auto text-sm text-gray-500">({items.length})</span>}
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-lg bg-meu-red py-2 text-center text-white">
-          قريبًا
-        </div>
+        <div className="rounded-lg bg-meu-red py-2 text-center text-white">قريبًا</div>
       ) : (
         <ul className="space-y-2">
-          {items.map(item => (
+          {items.map((item) => (
             <li key={item.id}>
               <a
                 href={item.url}
@@ -91,11 +70,7 @@ export default async function CoursePage({ params }: PageProps) {
                 <FileText size={18} />
                 <span className="flex-1">
                   {item.title}
-                  {item.year && (
-                    <span className="mr-2 text-sm text-gray-500">
-                      ({item.year})
-                    </span>
-                  )}
+                  {item.year && <span className="mr-2 text-sm text-gray-500">({item.year})</span>}
                 </span>
               </a>
             </li>
@@ -105,23 +80,15 @@ export default async function CoursePage({ params }: PageProps) {
     </div>
   );
 
-  /* =========================
-     UI
-  ========================= */
   return (
     <div className={tajawal.className}>
       <Container>
         <div className="py-10 space-y-10">
-
-          {/* ===== العنوان ===== */}
           <div>
             <h1 className="text-2xl font-extrabold">صفحة المادة</h1>
-            <p className="mt-1 text-gray-500">
-              كل ما يتعلق بالمادة من سلايدات، ملخصات، وامتحانات سنوات.
-            </p>
+            <p className="mt-1 text-gray-500">كل ما يتعلق بالمادة من سلايدات، ملخصات، وامتحانات سنوات.</p>
           </div>
 
-          {/* ===== معلومات المادة ===== */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-xl border p-4 text-center">
               <div className="flex justify-center mb-2 text-meu-red">
@@ -136,7 +103,7 @@ export default async function CoursePage({ params }: PageProps) {
                 <Clock />
               </div>
               <div className="font-bold">الساعات</div>
-              <div className="text-gray-400 mt-1">{}</div>
+              <div className="text-gray-400 mt-1">{formatCreditHours(meta?.hours)}</div>
             </div>
 
             <div className="rounded-xl border p-4 text-center">
@@ -144,36 +111,19 @@ export default async function CoursePage({ params }: PageProps) {
                 <Layers />
               </div>
               <div className="font-bold">التصنيف</div>
-              <div className="text-gray-400 mt-1">{}</div>
+              <div className="text-gray-400 mt-1">{meta?.category || "N/A"}</div>
             </div>
           </div>
 
-          {/* ===== المكتبة ===== */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <LibraryCard
-              title="سلايدات"
-              icon={<BookOpen size={20} />}
-              items={slides}
-            />
-
-            <LibraryCard
-              title="ملخصات"
-              icon={<FileText size={20} />}
-              items={summaries}
-            />
-
-            <LibraryCard
-              title="امتحانات سنوات"
-              icon={<Layers size={20} />}
-              items={exams}
-            />
+            <LibraryCard title="سلايدات" icon={<BookOpen size={20} />} items={slides} />
+            <LibraryCard title="ملخصات" icon={<FileText size={20} />} items={summaries} />
+            <LibraryCard title="امتحانات سنوات" icon={<Layers size={20} />} items={exams} />
           </div>
 
-          {/* ===== ملاحظة ===== */}
           <div className="rounded-xl border bg-gray-50 p-4 text-center text-sm text-gray-600">
             سيتم إضافة الملفات تدريجيًا، وستظهر هنا مباشرة عند توفرها.
           </div>
-
         </div>
       </Container>
     </div>

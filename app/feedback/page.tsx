@@ -54,25 +54,48 @@ export default function SuggestionsPage() {
     return "";
   }, [major]);
 
+  const selectedType = NOTE_TYPES.find((t) => t.id === noteType);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!major || !message.trim()) return;
 
     setSending(true);
 
-    // ✅ اربطها لاحقاً بـ API / n8n / DB
-    // مثال:
-    // await fetch("/api/suggestions", { method:"POST", body: JSON.stringify({...}) })
+    try {
+      const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // نفس أسماء الحقول اللي الـ API route متوقعها
+          name: name || "",
+          university_email: uniEmail || "",
+          major: majorLabel || "",
+          academic_year: year || "",
+          course: courseOrDoctor || "",
+          feedback_type: selectedType?.label || noteType,
+          message: message || "",
+          page_url: window.location.href,
+        }),
+      });
 
-    setTimeout(() => {
-      setSending(false);
-      // reset بسيط
+      // إذا بدك بصمت بدون تنبيه، احذف alert
+      if (!res.ok) {
+        // لا نغيّر UI — بس تنبيه بسيط
+        alert("صار خطأ أثناء الإرسال. جرّب مرة ثانية.");
+        return;
+      }
+
+      // reset بسيط (نفس اللي كنت عامله)
       setMessage("");
       setCourseOrDoctor("");
-    }, 650);
+      alert("تم إرسال ملاحظتك ✅ شكرًا لك!");
+    } catch (err) {
+      alert("تعذر الإرسال بسبب مشكلة اتصال. جرّب مرة ثانية.");
+    } finally {
+      setSending(false);
+    }
   }
-
-  const selectedType = NOTE_TYPES.find((t) => t.id === noteType);
 
   return (
     <div dir="rtl" className={cn(tajawal.className, "min-h-screen bg-[#fafafa]")}>
@@ -90,7 +113,7 @@ export default function SuggestionsPage() {
               صندوق اقتراحات الطلاب
             </h1>
             <p className="mt-2 text-sm text-meu-gray">
-              اكتب ملاحظتك  — كل اقتراح يساعدنا نحسن المنصة والجزري.
+              اكتب ملاحظتك — كل اقتراح يساعدنا نحسن المنصة والجزري.
             </p>
           </div>
 
@@ -105,7 +128,7 @@ export default function SuggestionsPage() {
                         نموذج الإرسال
                       </div>
                       <div className="text-xs text-meu-gray mt-1">
-                        الحقول الاختيارية موضحة 
+                        الحقول الاختيارية موضحة
                       </div>
                     </div>
 
@@ -408,4 +431,3 @@ export default function SuggestionsPage() {
     </div>
   );
 }
-

@@ -1,3 +1,9 @@
+import { Tajawal } from "next/font/google";
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["400", "500", "700", "800"],
+});
+
 export const MEU_COLORS = {
   red: "#8A1F1F",
   dark: "#2B2B2B",
@@ -6,7 +12,7 @@ export const MEU_COLORS = {
 } as const;
 
 export const SITE = {
-  domain: "ENG101.com",
+  domain: "ENG-101.online",
   botName: "الجزري",
-  university: "Middle East University (MEU)"
+  university: "بديع الزمان أبو العز إسماعيل بن الرزاز"
 } as const;

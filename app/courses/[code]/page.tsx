@@ -136,7 +136,7 @@ export default async function CoursePage({ params }: PageProps) {
                 <Clock />
               </div>
               <div className="font-bold">الساعات</div>
-              <div className="text-gray-400 mt-1">—</div>
+              <div className="text-gray-400 mt-1">{}</div>
             </div>
 
             <div className="rounded-xl border p-4 text-center">
@@ -144,7 +144,7 @@ export default async function CoursePage({ params }: PageProps) {
                 <Layers />
               </div>
               <div className="font-bold">التصنيف</div>
-              <div className="text-gray-400 mt-1">—</div>
+              <div className="text-gray-400 mt-1">{}</div>
             </div>
           </div>
 

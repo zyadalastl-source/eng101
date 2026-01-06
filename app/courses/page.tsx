@@ -140,7 +140,7 @@ function CourseCard({ c }: { c: Course }) {
             <div className="mt-4 grid grid-cols-3 gap-2">
               <Stat label="سلايدات" value={c.slidesCount} />
               <Stat label="ملخصات" value={c.summariesCount} />
-              <Stat label="امتحانات" value={c.examsCount} />
+              <Stat label="بنك أسئلة" value={c.examsCount} />
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2 justify-end">

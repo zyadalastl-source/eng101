@@ -14,9 +14,8 @@ export default function Footer() {
           <div>
             <div className="text-sm font-semibold">روابط</div>
             <div className="mt-2 space-y-2 text-xs text-meu-gray">
-              <div>—</div>
-              <div>—</div>
-              <div>—</div>
+              <div>— https://mymeu.meu.edu.jo/Accounts/Login.aspx </div>
+             
             </div>
           </div>
           <div>

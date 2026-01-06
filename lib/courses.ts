@@ -1,7 +1,7 @@
 export const COURSES = [
-  { code: "0181101", name: "تفاضل وتكامل (1)", href: "/courses/0181101" },
-  { code: "0181102", name: "تفاضل وتكامل (2)", href: "/courses/0181102" },
-  { code: "0182101", name: "تفاضل وتكامل (3)", href: "/courses/0182101" },
+  { code: "0181101", name: "تفاضل وتكامل (1)", href: "/courses/0181101" , hours: 3 , category: "كلية اجبارية"},
+  { code: "0181102", name: "تفاضل وتكامل (2)", href: "/courses/0181102" , hours: 3 , category: "كلية اجبارية"},
+  { code: "0182101", name: "تفاضل وتكامل (3)", href: "/courses/0182101" , hours: 3 , category: "كلية اجبارية"},
 
   { code: "0181201", name: "فيزياء عامة (1)", href: "/courses/0181201" },
   { code: "0181203", name: "فيزياء عامة (2)", href: "/courses/0181203" },

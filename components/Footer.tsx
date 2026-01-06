@@ -6,10 +6,10 @@ export default function Footer() {
       <Container>
         <div className="grid gap-8 py-10 md:grid-cols-3">
           <div>
-            <div className="text-sm font-semibold"> عن ENG101.com </div>
+            <div className="text-sm font-semibold"> عن ENG101.online </div>
             
             
-            <div className="mt-2 text-xs text-meu-gray">—</div>
+            <div className="mt-2 text-xs text-meu-gray"> — منصة علمية تعليمية تخدم طلبة كلية الهندسة، وتساعدهم في الوصول إلى السلايدات، الملخصات، وامتحانات السنوات السابقة بسهولة ووضوح.</div>
           </div>
           <div>
             <div className="text-sm font-semibold">روابط</div>

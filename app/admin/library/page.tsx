@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { COURSES } from "@/lib/courses";
 import { FileText, Trash2, PlusCircle, Upload, Link as LinkIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type MaterialRow = {
   id: string;
@@ -24,8 +25,22 @@ function typeLabel(v: MaterialRow["type"]) {
   return TYPES.find(t => t.value === v)?.label ?? v;
 }
 
+async function checkAdmin() {
+  const res = await fetch("/api/admin/me", { cache: "no-store" });
+  return res.ok;
+}
+
+
 export default function AdminLibraryPage() {
-  // form
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const ok = await checkAdmin();
+      if (!ok) router.replace("/admin/login");
+    })();
+  }, [router]);
+
   const [courseCode, setCourseCode] = useState(COURSES[0]?.code || "");
   const [type, setType] = useState<MaterialRow["type"]>("slides");
   const [title, setTitle] = useState("");

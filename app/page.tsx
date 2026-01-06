@@ -49,12 +49,6 @@ const FEATURES = [
     desc: "مواعيد وخطوط الباصات بطريقة واضحة وسهلة.",
     icon: BusFront,
   },
-  {
-    title: "كويزات المذاكرة",
-    href: "/quizzes",
-    desc: "اختبر نفسك بكويزات سريعة قبل الامتحان.",
-    icon: HelpCircle,
-  },
 ] as const;
 
 
@@ -62,7 +56,6 @@ export default function HomePage() {
   const highlights = useMemo(
     () => [
       "مواد مرتبة + ملفات جاهزة للتحميل",
-      "خطة ذكية حسب المتطلبات السابقة",
       "حساب معدل سريع ودقيق",
       "اسأل الجزري… جواب مباشر وبأسلوب مفهوم",
     ],

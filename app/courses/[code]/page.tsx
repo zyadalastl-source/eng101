@@ -5,6 +5,7 @@ export const revalidate = 0;
 import Container from "@/components/Container";
 import { Tajawal } from "next/font/google";
 import { FileText, Layers, BookOpen, Clock, Tag } from "lucide-react";
+import ScrollToTab from "@/components/ScrollToTab";
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
@@ -35,7 +36,9 @@ export default async function CoursePage({ params }: PageProps) {
     .order("created_at", { ascending: false });
 
   const slides = (materials || []).filter((m: Material) => m.type === "slides");
-  const summaries = (materials || []).filter((m: Material) => m.type === "summary");
+  const summaries = (materials || []).filter(
+    (m: Material) => m.type === "summary"
+  );
   const exams = (materials || [])
     .filter((m: Material) => m.type === "exam")
     .sort((a: Material, b: Material) => (b.year || 0) - (a.year || 0));
@@ -49,16 +52,21 @@ export default async function CoursePage({ params }: PageProps) {
     icon: React.ReactNode;
     items: Material[];
   }) => (
-    
     <div className="rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="mb-4 flex items-center gap-2">
-        <div className="rounded-full bg-meu-red/10 p-2 text-meu-red">{icon}</div>
+        <div className="rounded-full bg-meu-red/10 p-2 text-meu-red">
+          {icon}
+        </div>
         <h3 className="font-bold text-lg">{title}</h3>
-        {items.length > 0 && <span className="mr-auto text-sm text-gray-500">({items.length})</span>}
+        {items.length > 0 && (
+          <span className="mr-auto text-sm text-gray-500">({items.length})</span>
+        )}
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-lg bg-meu-red py-2 text-center text-white">قريبًا</div>
+        <div className="rounded-lg bg-meu-red py-2 text-center text-white">
+          قريبًا
+        </div>
       ) : (
         <ul className="space-y-2">
           {items.map((item) => (
@@ -71,7 +79,11 @@ export default async function CoursePage({ params }: PageProps) {
                 <FileText size={18} />
                 <span className="flex-1">
                   {item.title}
-                  {item.year && <span className="mr-2 text-sm text-gray-500">({item.year})</span>}
+                  {item.year && (
+                    <span className="mr-2 text-sm text-gray-500">
+                      ({item.year})
+                    </span>
+                  )}
                 </span>
               </a>
             </li>
@@ -79,22 +91,24 @@ export default async function CoursePage({ params }: PageProps) {
         </ul>
       )}
     </div>
-    
   );
 
   return (
     <div className={tajawal.className}>
+      {/* ✅ scroll + highlight حسب ?tab= */}
+      <ScrollToTab />
+
       <Container>
         <div className="py-10 space-y-10">
           <div>
             <h1 className="text-2xl font-extrabold">
-            {meta?.name ? meta.name : "صفحة المادة"}{" "}
-            <span className="text-meu-red">— {params.code}</span>
-          </h1>
+              {meta?.name ? meta.name : "صفحة المادة"}{" "}
+              <span className="text-meu-red">— {params.code}</span>
+            </h1>
 
-          <p className="mt-1 text-gray-500">
-            كل ما يتعلق بالمادة من سلايدات، ملخصات، وامتحانات سنوات.
-          </p>
+            <p className="mt-1 text-gray-500">
+              كل ما يتعلق بالمادة من سلايدات، ملخصات، وامتحانات سنوات.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -111,7 +125,9 @@ export default async function CoursePage({ params }: PageProps) {
                 <Clock />
               </div>
               <div className="font-bold">الساعات</div>
-              <div className="text-gray-400 mt-1">{formatCreditHours(meta?.hours)}</div>
+              <div className="text-gray-400 mt-1">
+                {formatCreditHours(meta?.hours)}
+              </div>
             </div>
 
             <div className="rounded-xl border p-4 text-center">
@@ -123,10 +139,31 @@ export default async function CoursePage({ params }: PageProps) {
             </div>
           </div>
 
+          {/* ✅ IDs للأقسام عشان السكروول والهايلايت */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <LibraryCard title="سلايدات" icon={<BookOpen size={20} />} items={slides} />
-            <LibraryCard title="ملخصات" icon={<FileText size={20} />} items={summaries} />
-            <LibraryCard title="امتحانات سنوات" icon={<Layers size={20} />} items={exams} />
+            <div id="tab-slides" className="scroll-mt-24">
+              <LibraryCard
+                title="سلايدات"
+                icon={<BookOpen size={20} />}
+                items={slides}
+              />
+            </div>
+
+            <div id="tab-summaries" className="scroll-mt-24">
+              <LibraryCard
+                title="ملخصات"
+                icon={<FileText size={20} />}
+                items={summaries}
+              />
+            </div>
+
+            <div id="tab-exams" className="scroll-mt-24">
+              <LibraryCard
+                title="امتحانات سنوات"
+                icon={<Layers size={20} />}
+                items={exams}
+              />
+            </div>
           </div>
 
           <div className="rounded-xl border bg-gray-50 p-4 text-center text-sm text-gray-600">

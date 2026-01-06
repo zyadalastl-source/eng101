@@ -198,15 +198,17 @@ export default function ChatbotPage() {
 
               <div className="relative h-12 w-12 overflow-hidden rounded-full ring-2 ring-meu-red/25">
                 <Image
-                  src="/aljazari.png"
-                  alt="AlJazari Avatar"
-                  fill
-                  className="object-cover"
-                  priority
-                />
+                src="/library-hero.webp"
+                alt="Engineering Courses Library"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+              />
               </div>
-            </div>
-          </div>
+             </div>
+            </div>  
+
 
           {/* Chat Card */}
           <Card className="w-full max-w-full overflow-hidden border border-meu-gray/15 shadow-sm">

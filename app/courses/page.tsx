@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Container from "@/components/Container";
 import SectionTitle from "@/components/SectionTitle";
@@ -193,11 +193,16 @@ export default function CoursesPage() {
       <section className="relative overflow-hidden rounded-b-3xl">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <img
-            src="/library-hero.png"
-            alt="Library Hero"
-            className="h-full w-full object-cover"
-          />
+          <Image
+          src="/library-hero.webp"
+          alt="Engineering Courses Library"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+
+
           {/* Overlay خفيف للقراءة */}
           <div className="absolute inset-0 bg-black/55" />
         </div>

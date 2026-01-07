@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const message = (body?.message ?? "").toString();
+  const { message } = await req.json();
 
-    const reply =
-      message.length === 0
-        ? "اكتب رسالة أولاً 🙂"
-        : `هذا رد تجريبي من API ✅\nرسالتك: ${message}`;
+  const res = await fetch(process.env.N8N_WEBHOOK_URL!, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message }),
+  });
 
-    return NextResponse.json({ reply });
-  } catch (error) {
-    return NextResponse.json(
-      { reply: "صار خطأ بالسيرفر" },
-      { status: 500 }
-    );
-  }
+  const data = await res.json();
+
+  return NextResponse.json({
+    reply: data.reply ?? "ما وصلني رد من النظام.",
+  });
 }
-

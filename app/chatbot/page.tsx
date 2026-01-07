@@ -122,30 +122,94 @@ export default function ChatbotPage() {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [msgs.length, isTyping]);
 
-  function send() {
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") send();
+  }
+
+  async function send() {
     const v = input.trim();
     if (!v || isTyping) return;
 
+    // ✅ مهم: نقرأ الرابط مرة واحدة ونتأكد منه قبل الطلب
+    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+
     setMsgs((p) => [...p, { id: uid(), role: "user", text: v, ts: Date.now() }]);
     setInput("");
-
     setIsTyping(true);
-    setTimeout(() => {
+
+    // ✅ إذا الرابط مش موجود
+    if (!webhookUrl) {
       setMsgs((p) => [
         ...p,
         {
           id: uid(),
           role: "bot",
-          text: "تمام ✅ وصلتني رسالتك. (حالياً هذا رد تجريبي) — اربطني بالـ API وبصير يجاوبك فعلياً.",
+          text: "❌ رابط الـ Webhook غير مضبوط (NEXT_PUBLIC_N8N_WEBHOOK_URL).",
           ts: Date.now(),
         },
       ]);
       setIsTyping(false);
-    }, 650);
-  }
+      return;
+    }
 
-  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") send();
+    try {
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: v }),
+      });
+
+      // ✅ أحيانًا الرد يكون نص مش JSON (خصوصًا إذا صار Error من n8n)
+      const raw = await res.text();
+
+      let data: any = null;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        // مش JSON
+      }
+
+      if (!res.ok) {
+        setMsgs((p) => [
+          ...p,
+          {
+            id: uid(),
+            role: "bot",
+            text:
+              (data?.reply as string) ||
+              (data?.message as string) ||
+              `❌ خطأ من السيرفر (${res.status}).`,
+            ts: Date.now(),
+          },
+        ]);
+        return;
+      }
+
+      setMsgs((p) => [
+        ...p,
+        {
+          id: uid(),
+          role: "bot",
+          text:
+            (data?.reply as string) ||
+            (data?.text as string) || // بعض إعدادات n8n ممكن ترجع text
+            "❌ ما وصلني رد من النظام",
+          ts: Date.now(),
+        },
+      ]);
+    } catch {
+      setMsgs((p) => [
+        ...p,
+        {
+          id: uid(),
+          role: "bot",
+          text: "❌ صار خطأ بالاتصال",
+          ts: Date.now(),
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   const today = useMemo(() => {
@@ -269,21 +333,20 @@ export default function ChatbotPage() {
                 </div>
 
                 <div
-                    ref={listRef}
-                    className="relative h-[54vh] min-h-[380px] w-full overflow-y-auto overflow-x-hidden rounded-2xl border border-meu-gray/15 p-4"
-                    style={{
-                      backgroundImage: `
+                  ref={listRef}
+                  className="relative h-[54vh] min-h-[380px] w-full overflow-y-auto overflow-x-hidden rounded-2xl border border-meu-gray/15 p-4"
+                  style={{
+                    backgroundImage: `
                         linear-gradient(
                           rgba(255,255,255,0.92),
                           rgba(255,255,255,0.92)
                         ),
                         url('/andalus-pattern.png')
                       `,
-                      backgroundRepeat: "repeat",
-                      backgroundSize: "420px",
-                    }}
-                  >
-
+                    backgroundRepeat: "repeat",
+                    backgroundSize: "420px",
+                  }}
+                >
                   <div className="space-y-3">
                     {msgs.map((m) => {
                       const isUser = m.role === "user";
@@ -352,9 +415,7 @@ export default function ChatbotPage() {
                 />
               </div>
 
-              <div className="mt-3 text-center text-xs text-meu-gray">
-               اسال يا غلام 
-              </div>
+              <div className="mt-3 text-center text-xs text-meu-gray">اسال يا غلام</div>
 
               <style jsx global>{`
                 @keyframes msgIn {

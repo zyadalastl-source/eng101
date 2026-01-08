@@ -19,8 +19,6 @@ function normalizeArabic(text: string) {
     .replace(/أ|إ|آ/g, "ا");     // توحيد الألف
 }
 
-
-
 const BUS_AREAS: BusArea[] = [
   { id: "1", name: "ضاحية الرشيد" },
   { id: "2", name: "البشتي/خلدا" },
@@ -64,8 +62,7 @@ const BUS_AREAS: BusArea[] = [
   { id: "37", name: "الاستقلال/الدخلية" },
   { id: "38", name: "الهاشمي الشمالي" },
   { id: "39", name: "الزرقاء" },
-  { id: "40", name: "*جاوا" },
-
+  { id: "40", name: "جاوا" },
 ];
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -76,6 +73,10 @@ export default function BusPage() {
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [onlyFav, setOnlyFav] = useState(false);
+
+  // ✅ NEW: وقت الجولة + آخر تحديث (للبوكس فقط)
+  const [roundTime, setRoundTime] = useState<string | null>(null);
+  const [lastFetch, setLastFetch] = useState<string | null>(null);
 
   // Load favorites
   useEffect(() => {
@@ -92,6 +93,34 @@ export default function BusPage() {
     } catch {}
   }, [favorites]);
 
+  // ✅ NEW: جلب وقت الجولة كل 30 ثانية (بدون ما نغيّر أي UI آخر)
+  useEffect(() => {
+    let alive = true;
+
+    const load = async () => {
+      try {
+        const r = await fetch("/api/bus-status", { cache: "no-store" });
+        const j = await r.json();
+        if (!alive) return;
+
+        if (j?.ok) {
+          setRoundTime(j.roundTime ?? null);
+          setLastFetch(j.fetchedAt ?? null);
+        }
+      } catch {
+        // خليه ساكت عشان ما يأثر على الواجهة
+      }
+    };
+
+    load();
+    const t = setInterval(load, 5_000);
+
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
+
   const toggleFav = (id: string) => {
     setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -105,8 +134,7 @@ export default function BusPage() {
     const q = search.trim();
 
     let list = BUS_AREAS.filter((b) => {
-      const matchSearch =!q || normalizeArabic(b.name).includes(normalizeArabic(q));
-
+      const matchSearch = !q || normalizeArabic(b.name).includes(normalizeArabic(q));
       const matchFav = !onlyFav || !!favorites[b.id];
       return matchSearch && matchFav;
     });
@@ -156,6 +184,33 @@ export default function BusPage() {
               <span className="font-bold"> meubus.meu.edu.jo</span>
             </p>
 
+            {/* ✅ NEW: بوكس وقت الجولة (بدون تعديل أي شيء آخر) */}
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-3 rounded-2xl bg-white/15 backdrop-blur border border-white/20 px-4 py-3 text-white">
+                <span className="text-white/80">⏱️</span>
+                <div className="text-sm leading-5">
+                  <div className="font-bold">
+                    موعد الجولة:{" "}
+                    <span className="font-extrabold">
+                      {roundTime ?? "جاري التحديث..."}
+                    </span>
+                  </div>
+
+                  {/* سطر صغير (اختياري) لآخر تحديث — ما بغير شكل الصفحة، بس بضيف معلومة */}
+                  <div className="text-white/70 text-xs mt-1">
+                    آخر تحديث:{" "}
+                    <span className="font-bold">
+                      {lastFetch
+                        ? new Date(lastFetch).toLocaleTimeString("en-GB")
+                        : "—"}
+                    </span>
+                    <span className="mr-2">•</span>
+                    تحديث تلقائي كل 5 ثانية
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-col md:flex-row gap-3">
               {/* ✅ Search (شغال) */}
               <div className="flex-1 rounded-2xl bg-white/15 backdrop-blur border border-white/20 p-2">
@@ -203,7 +258,8 @@ export default function BusPage() {
       {/* GRID */}
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="mb-4 text-sm text-neutral-600">
-          عدد النتائج: <span className="font-bold text-neutral-900">{filtered.length}</span>
+          عدد النتائج:{" "}
+          <span className="font-bold text-neutral-900">{filtered.length}</span>
           {onlyFav && (
             <span className="mr-2 inline-flex items-center gap-2">
               • <span className="font-bold">عرض المثبتة فقط</span>
@@ -239,9 +295,7 @@ export default function BusPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center text-gray-500 mt-10">
-            لا توجد نتائج
-          </div>
+          <div className="text-center text-gray-500 mt-10">لا توجد نتائج</div>
         )}
       </div>
     </div>

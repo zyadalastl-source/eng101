@@ -378,7 +378,7 @@ export default function ChatbotPage() {
                         <div className="max-w-[85%]">
                           <div className="rounded-2xl bg-meu-red text-white px-4 py-3 shadow-sm">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-bold">يكتب…</span>
+                              <span className="text-sm font-bold">يتحرى</span>
                               <span className="typing-dots" aria-hidden="true">
                                 <i />
                                 <i />

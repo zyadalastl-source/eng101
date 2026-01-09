@@ -22,7 +22,7 @@ const tajawal = Tajawal({
   weight: ["400", "500", "700", "800"],
 });
 
-// مرتبة بالأهمية
+// خدمات المنصة 
 const FEATURES = [
   {
     title: "شات بوت الجزري",
@@ -172,7 +172,7 @@ export default function HomePage() {
       <Link key={f.title} href={f.href} className="group">
         <Card className="relative overflow-hidden transition duration-200 group-hover:shadow-md group-hover:-translate-y-0.5">
           <CardContent>
-            {/* Icon badge (زي اللي بالصورة) */}
+            {/* Icon badge*/}
                       <div className="absolute right-4 top-4">
                         <div className="h-12 w-12 rounded-full bg-[#7f1d1d]/10 flex items-center justify-center">
                           <div className="h-10 w-10 rounded-full bg-white/80 shadow-sm ring-1 ring-black/5 flex items-center justify-center">

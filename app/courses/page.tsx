@@ -13,7 +13,7 @@ const tajawal = Tajawal({
   subsets: ["arabic"],
   weight: ["400", "500", "700", "800"],
 });
-
+//هاي بتوحد الكلام
 function normalizeArabic(text: string) {
   return text
     .toLowerCase()
@@ -256,7 +256,7 @@ export default function CoursesPage() {
 
           {filtered.length === 0 && (
             <div className="mt-8 text-center text-sm text-meu-gray">
-              ما في نتائج… جرّب رمز مادة مختلف.
+              ما في نتائج يا قرابة… جرّب رمز مادة مختلف.
             </div>
           )}
         </Container>

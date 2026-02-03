@@ -46,7 +46,7 @@ const FEATURES = [
   {
     title: "MEU BUS النقل",
     href: "/bus",
-    desc: "مواعيد وخطوط الباصات بطريقة واضحة وسهلة.",
+    desc: "مواعيد وخطوط الحافلات بطريقة واضحة وسهلة.",
     icon: BusFront,
   },
 ] as const;

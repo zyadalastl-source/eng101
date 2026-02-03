@@ -176,7 +176,7 @@ export default function BusPage() {
             </span>
 
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-              مناطق الباصات
+              مناطق الحافلات
             </h1>
 
             <p className="text-white/85 max-w-2xl mb-6">
@@ -288,7 +288,7 @@ export default function BusPage() {
                   </button>
                 </div>
 
-                <div className="mt-3 text-sm text-gray-500">رقم الباص: —</div>
+                <div className="mt-3 text-sm text-gray-500">رقم الحافلة: —</div>
               </div>
             );
           })}

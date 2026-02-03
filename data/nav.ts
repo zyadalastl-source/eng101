@@ -3,7 +3,7 @@ export const NAV_LINKS = [
   { href: "/chatbot", label: " الجزري" },
   { href: "/courses", label: "مكتبة المواد" },
   { href: "/gpa", label: "المعدل" },
-  { href: "/bus", label: "الباصات" },
+  { href: "/bus", label: "الحافلات" },
   { href: "/feedback", label: "الاقتراحات" },
   //{ href: "/quizzes", label: "الكوياز" },
   //{ href: "/resources", label: "الموارد" },
